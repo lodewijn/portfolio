@@ -1,0 +1,47 @@
+---
+title: "latex"
+output: html_document
+date: "2025-09-16"
+---
+
+```{r}
+#load package lattice
+library(lattice)
+library(xtable) # generate the LaTeX code for tables
+#fix the random generator seed
+set.seed(123)
+#create data
+data <- rnorm(1000)
+#plot histogram
+h <- histogram(data)
+#plot density 
+densityplot(data^12 / data^10, xlab = expression(data^12/data^10))
+#plot stripplot
+stripplot(data^2, xlab = expression(data^2))
+#plot boxplot
+bwplot(exp(data))
+#matrix with all data used
+data.all <- cbind(data = data, 
+                  squared1 = data^12 / data^10,
+                  squared2 = data^2,
+                  exponent = exp(data))
+
+
+xtable(data.all[1:9,])
+
+pdf("histogram.pdf")
+print(histogram)
+dev.off()
+
+pdf("density.pdf")
+print(densityplot)
+dev.off()
+
+pdf("stripplot.pdf")
+print(stripplot)
+dev.off()
+
+pdf("bwplot.pdf")
+print(bwplot)
+dev.off()
+```
