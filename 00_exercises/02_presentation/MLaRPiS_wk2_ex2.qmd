@@ -1,0 +1,195 @@
+---
+title: "MLaRPis Week 2"
+subtitle: "Excercise 2: Kobus en Piet"
+editor: visual
+format:
+  revealjs:
+    logo: ChatGPT_logo_kopiet.png
+    logo-position: bottom-right
+output: pdf
+bibliography: pietenko.bib
+nocite: |
+  @merkouri_dogs_2022
+author: 
+- name: Loesje Ubbink
+  orcid: 0009-0009-3718-8952
+  affiliations:
+      - name: Methodology & Statistics @ UU University
+---
+
+### Once upon a time there were two good boys
+
+::: center
+![Kobus and Piet!](KOenPIET.png){width="70%"}
+:::
+
+## 
+
+### They were growing ...
+
+```{r, echo=FALSE}
+library(tidyverse)
+
+kobus <- data.frame(weight = c(7.0, 8.1, 7.6,8.35, 9.8, 10.4), age_wk = c(15, 17, 18, 20, 24, 28)) 
+
+kobus$weight <- kobus$weight * 1000
+
+piet <- data.frame(weight = c(1268,1254,1315,1445,1575,1673,1753,1878,1968,2218,2526, 2762), date = c("19jul2025", "26jul2025","29jul2025","3aug2025","6aug2025","12aug2025","18aug2025", "25aug2025","30aug2025", "11sep2025","26sep2025", "10oct2025"))
+
+piet$date <- as.Date(piet$date, "%d%b%Y")
+
+piet$age_day <- piet$date - as.Date("5may2025","%d%b%Y")
+
+piet$age_wk <- piet$age_day/7
+
+piet$age_wk <- as.numeric(round(piet$age_wk))
+
+twee_dieren <- bind_rows(
+  kobus %>% mutate(who = "Kobus"),
+  piet  %>% mutate(who = "Piet")
+)
+```
+
+```{r}
+library(DT)
+
+# create interactive, sortable table
+datatable(
+  twee_dieren,
+  options = list(
+    pageLength = 7,   # how many rows shown at once
+    autoWidth = TRUE   # auto-adjust column widths
+  ),
+  rownames = FALSE
+)
+```
+
+## ... and growing ...
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+# base ggplot
+p <- ggplot(twee_dieren, aes(x = age_wk, y = weight, color = who)) +
+  geom_point(size = 3) +
+  geom_line() +
+  labs(
+    title = "Growth Curves Kobus en Piet",
+    x = "Age (weeks)",
+    y = "Weight (gram)",
+    color = "who"
+  ) +
+  theme_minimal()
+
+# make it interactive
+ggplotly(p)
+```
+
+## 
+
+### ... they became SUPER hungry and started their hunt for food! 
+
+:::::: columns
+::: {.column width="20%"}
+![](kopizza.png){width="100%"}
+:::
+
+::: {.column width="20%"}
+![](kobuseten.png){width="100%"}
+:::
+
+::: {.column width="20%"}
+![](pietenko.gif){width="100%"}
+:::
+
+::: {.column width="20%"}
+![](kowatermeloen.png){width="100%"}
+:::
+
+::: {.column width="20%"}
+![](pieteten.png){width="100%"}
+:::
+:::::
+
+##
+### Which made me very happy ...
+... ask [@hardie_social_2023]!
+
+
+More to read:
+
+::: {#refs}
+:::
+
+## 
+### The harder their search for food, the cuter they are ...
+... and the more I love them ! Which I will show using the plot that I made with this code
+
+```{r, echo=T,results='hide', eval=FALSE}
+x <- seq(0, 10, length.out = 100)
+y <- exp(x / 3)
+
+ggplot(data.frame(x, y), aes(x, y)) +
+  geom_line(color = "red", size = 1.5) +
+  labs(
+    x = "My love for Ko and Piet",
+    y = "How hungry they are \n / How cute they look to get food",
+    title = "Love versus hunger"
+  ) +
+  theme_minimal(base_size = 16)
+```
+
+## 
+```{r, echo=F, include=FALSE}
+#| cache: true
+#| label: "exp_data"
+# create the data (cached for speed)
+x <- seq(0, 10, length.out = 100)
+y <- exp(x / 3)
+data.frame(love = x, hunger = y)
+```
+
+```{r}
+#| echo: false
+#| cache: true
+# plot without showing code
+library(ggplot2)
+
+ggplot(data.frame(x, y), aes(x, y)) +
+  geom_line(color = "red", size = 1.5) +
+  labs(
+    x = "My love for Ko and Piet",
+    y = "How hungry they are \n / How cute they look to get food",
+    title = "Love versus hunger"
+  ) +
+  theme_minimal(base_size = 16)
+```
+
+##
+### When I give them food they love me back 
+::: center
+![(Image made with ChatGPT 5 Instant)](knuffelkopiet.png){width="50%"}
+:::
+
+## 
+### Another thing that thing they love, is reproducible science!!
+
+```{r, echo=T,results='hide', eval=FALSE}
+renv::init()
+```
+
+```{r}
+renv::snapshot()
+renv::restore()
+```
+
+##
+### And they lived happily ever after ...
+
+::: center
+![... with full bellies!](koenpietinbed.png){width="50%"}
+:::
+
+
