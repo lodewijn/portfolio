@@ -1,0 +1,36 @@
+---
+title: "MLaRPiS Week 2"
+subtitle: "Excercise 1: Playing with Quarto"
+format: revealjs
+editor: visual
+author: 
+- name: Loesje Ubbink
+  orcid: 0009-0009-3718-8952
+  affiliations:
+      - name: Methodology & Statistics @ UU University
+date: "`r Sys.Date()`"
+---
+
+## My favourite equation
+
+My favourite equations are: $x(t)=16sin^3(t),$ and $y(t)=13cos(t)−5cos(2t)−2cos(3t)−cos(4t),$ with $t∈[0,2π],$ because I \<3 equations.
+
+```{r}
+library(ggplot2)
+
+t <- seq(0, 2*pi, length.out = 1000)
+
+x <- 16 * sin(t)^3
+y <- 13*cos(t) - 5*cos(2*t) - 2*cos(3*t) - cos(4*t)
+
+df <- data.frame(x, y)
+
+ggplot(df, aes(x, y)) +
+  geom_path(color = "red", size = 1) +
+  coord_equal() +
+  theme_void()
+```
+
+## Fun fact
+
+When I was a baby, I was really fat. ![](babyloes.png){fig-align="center" width="80%"}
