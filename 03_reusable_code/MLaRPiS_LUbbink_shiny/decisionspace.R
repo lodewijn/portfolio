@@ -3,7 +3,7 @@ library(ggplot2)
 library(ggalluvial)
 library(dplyr)
 
-ui <- fluidPage(
+ui1 <- fluidPage(
   titlePanel("Multiverse Analysis: Decision Space"),
   
   sidebarLayout(
@@ -33,7 +33,7 @@ ui <- fluidPage(
   )
 )
 
-server <- function(input, output) {
+server1 <- function(input, output) {
 
     # Set up decision space in a list (not in a reactive element)
     decisions <- list(
@@ -61,7 +61,7 @@ server <- function(input, output) {
                           "NONE")
     )
     
-    # Create desicion space by combining all elements in the list
+    # Create decision space by combining all options of the decisions in the list
     decision_space <- reactive({
       
       df <- expand.grid(
@@ -73,19 +73,20 @@ server <- function(input, output) {
       )
 
   
-    # Make sure the plot shows an empty decision when the box is not ticked
-    if (!"Data" %in% input$dimensions) {
-      df$datatype <- "-"
-    }
-    if (!"Dependent Variable" %in% input$dimensions) {
-      df$outcome <- "-"
-    }
-    if (!"Confounder" %in% input$dimensions) {
-      df$confounder <- "-"
-    }
-    if (!"Model" %in% input$dimensions) {
-      df$model <- "-"
-    }
+    # When the box is not ticked, this means that this decision is fixed 
+      # so for example just one type of model (e.g., logistic regression) is used
+      if (!"Data Type" %in% input$dimensions) {
+        df$datatype <- "FIXED"
+      }
+      if (!"Dependent Variable" %in% input$dimensions) {
+        df$outcome <- "FIXED"
+      }
+      if (!"Confounder" %in% input$dimensions) {
+        df$confounder <- "FIXED"
+      }
+      if (!"Statistical Model" %in% input$dimensions) {
+        df$model <- "FIXED"
+      }
       
     df |>
       group_by(datatype, outcome, confounder, model) |>
@@ -97,14 +98,14 @@ server <- function(input, output) {
   output$decisionspacePlot <- renderPlot({
     df <- decision_space()
     
-    # Plot the different research paths
+    # Plot the different analytical paths
     decisionplot <- ggplot(df,
                            aes(axis1 = datatype, 
                                axis2 = outcome, 
                                axis3 = confounder, 
                                axis4 = model,
                                y = n)) +
-      geom_alluvium(fill = datatype, alpha = .55) +
+      geom_alluvium(aes(fill = datatype), alpha = .55) +
       geom_stratum() +
       geom_text(stat = "stratum", 
                 aes(label = after_stat(stratum))) +
@@ -122,17 +123,27 @@ server <- function(input, output) {
         legend.text  = element_text(size = 14), # legend item labels
         strip.text = element_text(size = 16)    # facet labels (if any)
       )
+    
+    decisionplot
   })
   
   output$nPaths <- renderText({
-    df <- decision_space()
+    dims <- input$dimensions
     
-    paste(c(
+    sizes <- c(
+      "Data Type" = length(decisions$datatype),
+      "Dependent Variable" = length(decisions$outcome),
+      "Confounder" = length(decisions$confounder),
+      "Statistical Model" = length(decisions$model)
+    )
+    
+    paste(
       "Number of possible analytical paths (universes):",
-      df$n)
+      prod(sizes[dims])
     )
   })
+  
 }
 
 
-shinyApp(ui = ui, server = server)
+shinyApp(ui = ui1, server = server1)
