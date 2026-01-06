@@ -10,7 +10,7 @@ ui <- fluidPage(
     sidebarPanel(
       checkboxGroupInput(
         "dimensions",
-        "Choose decisions to include in the multiverse:",
+        "Choose decisions included in multiverse:",
         choices = c(
           "Data Type",
           "Dependent Variable",
@@ -35,7 +35,7 @@ ui <- fluidPage(
 
 server <- function(input, output) {
 
-    # Set up decision space, where all combinations of decisions are mapped
+    # Set up decision space in a list (not in a reactive element)
     decisions <- list(
       
       datatype       = c("SL", 
@@ -61,6 +61,7 @@ server <- function(input, output) {
                           "NONE")
     )
     
+    # Create desicion space by combining all elements in the list
     decision_space <- reactive({
       
       df <- expand.grid(
@@ -70,28 +71,47 @@ server <- function(input, output) {
         model      = decisions$model,
         KEEP.OUT.ATTRS = FALSE
       )
+
+  
+    # Make sure the plot shows an empty decision when the box is not ticked
+    if (!"Data" %in% input$dimensions) {
+      df$datatype <- "-"
+    }
+    if (!"Dependent Variable" %in% input$dimensions) {
+      df$outcome <- "-"
+    }
+    if (!"Confounder" %in% input$dimensions) {
+      df$confounder <- "-"
+    }
+    if (!"Model" %in% input$dimensions) {
+      df$model <- "-"
+    }
+      
+    df |>
+      group_by(datatype, outcome, confounder, model) |>
+        summarise(n = n(), .groups = "drop")
     })
-  
-  
-  
+    
+    
   # output plot of OR distributions per decision
   output$decisionspacePlot <- renderPlot({
-    df <- multiverse_df()
+    df <- decision_space()
     
     # Plot the different research paths
     decisionplot <- ggplot(df,
                            aes(axis1 = datatype, 
                                axis2 = outcome, 
                                axis3 = confounder, 
-                               axis4 = model)) +
-      geom_alluvium(aes(alluvium = path_id, fill = datatype), 
-                    knot.pos = 0.1, alpha = .55) +
+                               axis4 = model,
+                               y = n)) +
+      geom_alluvium(fill = datatype, alpha = .55) +
       geom_stratum() +
-      geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
-      scale_x_discrete(limits = c("Data", 
+      geom_text(stat = "stratum", 
+                aes(label = after_stat(stratum))) +
+      scale_x_discrete(limits = c("Data Type", 
                                   "Dependent Variable", 
                                   "Confounder", 
-                                  "Model"))  +
+                                  "Statistical Model"))  +
       theme_minimal() + 
       ylab("Number of possible analytical paths") +
       labs(fill = "Data")+
@@ -104,13 +124,14 @@ server <- function(input, output) {
       )
   })
   
-  output$nPaths <- renderPrint({
-    paste(
+  output$nPaths <- renderText({
+    df <- decision_space()
+    
+    paste(c(
       "Number of possible analytical paths (universes):",
-      n_multiverse_paths()
+      df$n)
     )
   })
-  
 }
 
 
