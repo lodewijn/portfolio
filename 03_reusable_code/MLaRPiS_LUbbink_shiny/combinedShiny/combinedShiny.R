@@ -1,7 +1,8 @@
 library(shiny)
 library(ggplot2)
 library(ggalluvial)
-library(dplyr)
+library(tidyverse)
+library(kSamples)
 
 ui <- fluidPage(
   titlePanel("Multiverse Analysis: Decision Space and Sensitivity"),
@@ -65,7 +66,6 @@ ui <- fluidPage(
           strong("Decision sensitivity"),
           textOutput("sensitivityText")
         )
-        
         ,
         mainPanel(
           plotOutput("distPlot"),
@@ -311,7 +311,7 @@ server <- function(input, output) {
   output$sensitivityText <- renderText({
     ad_sens <- ad_result()
     
-    if (ad$ad[6] < 0.05) {
+    if (ad_sens$ad[6] < 0.05) {
       "Since the Anderson–Darling test is significant (p < 0.05), this analytical decision can be classified as sensitive."
     } else {
       "Since the Anderson–Darling test is not significant (p > 0.05), this analytical decision cannot be classified as sensitive."
