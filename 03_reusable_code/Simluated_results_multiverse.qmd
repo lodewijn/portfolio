@@ -83,3 +83,19 @@ ggplot(dat, aes(x = odds_ratio, colour = outcome)) +
   theme_minimal() + 
    theme(text = element_text(size = 20)) 
 ```
+
+```{r}
+# Perform AD-test by comparing OR distributions within each desicion
+or <- dat$odds_ratio
+decision_outcome <- dat$outcome
+
+# Example for outcome decision
+ad_out <- ad.test(or ~ decision_outcome)
+
+# obtain p-value (version 2)
+ad_out$ad_out[6] < 0.05
+```
+
+
+
+

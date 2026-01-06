@@ -11,9 +11,19 @@ ui <- fluidPage(
       selectInput(
         "Decision",
         "Choose an analytical decision",
-        choices = c("Dependent Variable", "Statistical Model", "Data Type")
-      )
-    ),
+        choices = c(
+          "Dependent Variable",
+          "Statistical Model",
+          "Data Type",
+          "Confounder"
+        )
+      ),
+      hr(),
+      strong("Decision sensitivity"),
+      textOutput("sensitivityText")
+    )
+    
+    ,
     mainPanel(
       plotOutput("distPlot"),
       verbatimTextOutput("adTest")
@@ -24,54 +34,65 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   simulated_data <- reactive({
+    # Set up decision space, where all combinations of decisions are mapped
+    decision_space <- expand.grid(
+      
+      datatype       = c("Strict Longitudinal", 
+                         "Non-strict Longitudinal",
+                         "Cross-sectional"),  
+      
+      
+      model      = c("Cox Hazard", 
+                     "Logistic", 
+                     "Log-binomial",
+                     "Mixed-effects", 
+                     "Discrete Time",
+                     "Generalised Estimating Equation"), 
+      
+      outcome         = c(paste0("Operationalisation ", 1:7)),
+      
+      confounder      = c("Age", 
+                          "Sex", 
+                          "Country",
+                          "Smoking",
+                          "Education",
+                          "Physical Activity", 
+                          "None")
+    )
+    
+    # Set seed to ensure reproducibility
     set.seed(123)
     
-    # conditions for normally distributed odds ratios
-    n <- 400
-    means <- c(0.95, 1.025, 1, 0.975, 1.05)
-    sd <- 0.03
+    n <- nrow(decision_space)
     
-    # create a data frame with simulated odds ratio per operationalisation of the DV
-    dat <- data.frame(
+    # For good visualisation of decision sensitivity
+    # 2/3 of the resulting odds ratios will follow a normal distribution 
+    n_norm <- floor(2 * n / 3)
+    
+    # and 1/3 will follow a beta
+    n_beta <- n - n_norm
+    
+    # Conditions for normal distribution
+    mean <- 1
+    sd  <- 0.05
+    
+    # Normally distributed odds ratios
+    or_norm <- data.frame(
       odds_ratio = unlist(
-        lapply(means, function(mu) {
-          # let 5 of the outcomes follow normal distributions
-          exp(rnorm(n, mean = log(mu), sd = sd)) 
+        lapply(mean, function(mu) {
+          exp(rnorm(n_norm, mean = log(mu), sd = sd)) 
         })
-      ),
-      DV = rep(
-        paste0("Operationalisation ", 1:5),
-        each = n
       )
     ) 
     
-    # and the other 2 follow different beta distributions
-    or6 <- data.frame(odds_ratio = rbeta(n, 3,2), 
-                      DV = rep("Operationalisation 6", 400))
+    # Beta distributed odds ratios
+    or_beta <- data.frame(odds_ratio = rbeta(n_beta, 3,2))
     
-    or7 <- data.frame(odds_ratio=rbeta(n, 6,2), 
-                      DV = rep("Operationalisation 7", 400))
+    # Create one data frame that contains the decisions and outcomes
+    dat <- decision_space
+    dat$odds_ratio <- c(or_norm$odds_ratio, or_beta$odds_ratio)
     
-    # combine all DV datasets
-    dat <- rbind(dat, or6, or7)
-    
-    # create model type decision
-    dat$model <- rep(
-      c("Cox Hazard", 
-        "Logistic", 
-        "Log-binomial",
-        "Mixed-effects", 
-        "Discrete Time",
-        "Generalised Estimating Equation"), 
-      length.out = nrow(dat)) # make sure it is repeated as many times as the df is long
-    
-    # create data type decision
-    dat$datatype <- rep(
-      c("Strict Longitudinal", 
-        "Non-strict Longitudinal", 
-        "Cross-sectional"),
-      length.out = nrow(dat))
-    
+    # Output is complete dataframe
     dat
   })
   
@@ -79,9 +100,10 @@ server <- function(input, output) {
   grouping_var <- reactive({
     switch(
       input$Decision,
-      "Dependent Variable" = "DV",
+      "Dependent Variable" = "outcome",
       "Statistical Model" = "model",
-      "Data Type" = "datatype"
+      "Data Type" = "datatype", 
+      "Confounder" = "confounder"
     ) })
   
   # output plot of OR distributions per decision
@@ -95,22 +117,40 @@ server <- function(input, output) {
       labs(
         x = "Odds Ratio",
         y = "Density",
-        colour = g
+        colour = input$Decision
       ) +
       theme_minimal() +
       theme(text = element_text(size = 16))
   })
   
   # output of the k-samples Anderson Darling (AD) test to identify sensitive decisions 
-  output$adTest <- renderPrint({
+  ad_result <- reactive({
     dat <- simulated_data()
     g <- grouping_var()
     
-    split_or <- split(dat$odds_ratio, dat[[g]]) # group the odds ratios per decision
-    
-    ad <- do.call(ad.test, split_or) # do a within-decision AD-test
-    ad
+    split_or <- split(dat$odds_ratio, dat[[g]])
+    ad.test(split_or)
   })
+  
+  output$adTest <- renderPrint({
+    ad_result()
+  })
+  
+  output$sensitivityText <- renderText({
+    ad <- ad_result()
+    
+      if (ad$ad[6] < 0.05) {
+      "Since the Anderson–Darling test is significant (p < 0.05), this analytical decision can be classified as sensitive."
+    } else {
+      "Since the Anderson–Darling test is not significant (p > 0.05), this analytical decision cannot be classified as sensitive."
+    }
+  })
+  
 }
+
+
+
+
+
 
 shinyApp(ui = ui, server = server)
