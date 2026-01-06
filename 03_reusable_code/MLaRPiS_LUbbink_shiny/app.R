@@ -26,6 +26,7 @@ ui <- fluidPage(
     ,
     mainPanel(
       plotOutput("distPlot"),
+      textOutput("adText"),
       verbatimTextOutput("adTest")
     )
   )
@@ -132,12 +133,23 @@ server <- function(input, output) {
     ad.test(split_or)
   })
   
+  output$adText <- renderText({
+    ad <- ad_result()
+    
+    paste(
+      "Number of samples:", ad$k,
+      "Sample sizes:", paste(ad$ns, collapse = ", "))
+    
+  })
+  
+  
   output$adTest <- renderPrint({
-    ad_result()
+    ad <- ad_result()
+    ad$ad
   })
   
   output$sensitivityText <- renderText({
-    ad <- ad_result()
+    ad_sens <- ad_result()
     
       if (ad$ad[6] < 0.05) {
       "Since the Anderson–Darling test is significant (p < 0.05), this analytical decision can be classified as sensitive."
