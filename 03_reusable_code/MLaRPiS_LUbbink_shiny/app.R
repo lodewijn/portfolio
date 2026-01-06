@@ -26,7 +26,8 @@ ui <- fluidPage(
     ,
     mainPanel(
       plotOutput("distPlot"),
-      textOutput("adText"),
+      verbatimTextOutput("adText1"),
+      verbatimTextOutput("adText2"),
       verbatimTextOutput("adTest")
     )
   )
@@ -133,15 +134,16 @@ server <- function(input, output) {
     ad.test(split_or)
   })
   
-  output$adText <- renderText({
-    ad <- ad_result()
-    
+  output$adText1 <- renderText({
     paste(
-      "Number of samples:", ad$k,
-      "Sample sizes:", paste(ad$ns, collapse = ", "))
-    
+      "Results of k-sample Anderson Darling Test:")
   })
   
+  output$adText2 <- renderText({
+    ad <- ad_result()
+  
+    paste("Number of samples:", ad$k,"\nSample sizes:", paste(ad$ns, collapse = ", "))
+  })
   
   output$adTest <- renderPrint({
     ad <- ad_result()
