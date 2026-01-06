@@ -1,3 +1,5 @@
+library(ggalluvial)
+
 ui <- fluidPage(
   titlePanel("Multiverse Analysis: Decision Space"),
   
@@ -5,24 +7,25 @@ ui <- fluidPage(
     sidebarPanel(
       checkboxGroupInput(
         "dimensions",
-        "Include decision dimensions",
+        "Choose decisions to include in the multiverse:",
         choices = c(
-          "Data",
-          "Outcome",
-          "Covariates",
-          "Model"
+          "Data Type",
+          "Dependent Variable",
+          "Confounder",
+          "Statistical Model"
         ),
         selected = c(
-          "Data",
-          "Outcome",
-          "Covariates",
-          "Model"
+          "Data Type",
+          "Dependent Variable",
+          "Confounder",
+          "Statistical Model"
         )
       )
     )
     ,
     mainPanel(
-      plotOutput("decisionspacePlot")
+      plotOutput("decisionspacePlot"),
+      verbatimTextOutput("nPaths")
     )
   )
 )
@@ -55,73 +58,83 @@ server <- function(input, output) {
                           "NONE")
     )
     
-    # Reshape to long form for plotting
-    decisions <- decision_space %>% 
-      mutate(spec_id = row_number()) %>%
-      pivot_longer(-spec_id, names_to = "decision", values_to = "option")
   })
   
-  # connect variables in df to option bar
-  grouping_var <- reactive({
-    switch(
-      input$Decision,
-      "Dependent Variable" = "outcome",
-      "Statistical Model" = "model",
-      "Data Type" = "datatype", 
-      "Confounder" = "confounder"
-    ) })
+  multiverse_df <- reactive({
+    dims <- input$dimensions
+    
+    cols <- c(
+      "Data Type"           = "datatype",
+      "Dependent Variable"  = "outcome",
+      "Confounder"          = "confounder",
+      "Statistical Model"   = "model"
+    )
+    
+    selected_cols <- cols[dims]
+    
+    df <- do.call(
+      expand.grid,
+      c(decision_space()[selected_cols], KEEP.OUT.ATTRS = FALSE)
+    )
+    
+    df$path_id <- seq_len(nrow(df))
+    df
+  })
+  
+  n_multiverse_paths <- reactive({
+    dims <- input$dimensions
+    
+    cols <- c(
+      "Data Type"           = "datatype",
+      "Dependent Variable"  = "outcome",
+      "Confounder"          = "confounder",
+      "Statistical Model"   = "model"
+    )
+    
+    prod(vapply(
+      decision_space()[cols[dims]],
+      length,
+      numeric(1)
+    ))
+  })
   
   # output plot of OR distributions per decision
   output$decisionspacePlot <- renderPlot({
-    dat <- simulated_data()
-    g <- grouping_var()
+    df <- multiverse_df()
     
-    ggplot(dat, aes(x = odds_ratio, colour = .data[[g]])) +
-      geom_density(size = 1) +
-      geom_vline(xintercept = 1, linetype = "dashed") +
-      labs(
-        x = "Odds Ratio",
-        y = "Density",
-        colour = input$Decision
-      ) +
-      theme_minimal() +
-      theme(text = element_text(size = 16))
+    # Plot the different research paths
+    decisionplot <- ggplot(df,
+                           aes(axis1 = datatype, 
+                               axis2 = outcome, 
+                               axis3 = confounder, 
+                               axis4 = model)) +
+      geom_alluvium(aes(alluvium = path_id, fill = datatype), 
+                    knot.pos = 0.1, alpha = .55) +
+      geom_stratum() +
+      geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+      scale_x_discrete(limits = c("Data", 
+                                  "Dependent Variable", 
+                                  "Confounder", 
+                                  "Model"))  +
+      theme_minimal() + 
+      ylab("Number of possible analytical paths") +
+      labs(fill = "Data")+
+      theme(
+        axis.title = element_text(size = 16),   # x and y axis titles
+        axis.text  = element_text(size = 14),   # tick labels
+        legend.title = element_text(size = 16), # "fill" label
+        legend.text  = element_text(size = 14), # legend item labels
+        strip.text = element_text(size = 16)    # facet labels (if any)
+      )
   })
   
-  # output of the k-samples Anderson Darling (AD) test to identify sensitive decisions 
-  ad_result <- reactive({
-    dat <- simulated_data()
-    g <- grouping_var()
-    
-    split_or <- split(dat$odds_ratio, dat[[g]])
-    ad.test(split_or)
-  })
-  
-  output$adText1 <- renderText({
+  output$nPaths <- renderPrint({
     paste(
-      "Results of k-sample Anderson Darling Test:")
+      "Number of possible analytical paths (universes):",
+      n_multiverse_paths()
+    )
   })
   
-  output$adText2 <- renderText({
-    ad <- ad_result()
-    
-    paste("Number of samples:", ad$k,"\nSample sizes:", paste(ad$ns, collapse = ", "))
-  })
-  
-  output$adTest <- renderPrint({
-    ad <- ad_result()
-    ad$ad
-  })
-  
-  output$sensitivityText <- renderText({
-    ad_sens <- ad_result()
-    
-    if (ad$ad[6] < 0.05) {
-      "Since the Anderson–Darling test is significant (p < 0.05), this analytical decision can be classified as sensitive."
-    } else {
-      "Since the Anderson–Darling test is not significant (p > 0.05), this analytical decision cannot be classified as sensitive."
-    }
-  })
 }
 
 

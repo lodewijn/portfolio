@@ -12,10 +12,10 @@ ui <- fluidPage(
         "Decision",
         "Choose an analytical decision",
         choices = c(
-          "Dependent Variable",
-          "Statistical Model",
           "Data Type",
-          "Confounder"
+          "Dependent Variable",
+          "Confounder",
+          "Statistical Model"
         )
       ),
       hr(),
