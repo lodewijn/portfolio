@@ -1,4 +1,7 @@
+library(shiny)
+library(ggplot2)
 library(ggalluvial)
+library(dplyr)
 
 ui <- fluidPage(
   titlePanel("Multiverse Analysis: Decision Space"),
@@ -31,9 +34,9 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  decision_space <- reactive({
+
     # Set up decision space, where all combinations of decisions are mapped
-    decision_space <- expand.grid(
+    decisions <- list(
       
       datatype       = c("SL", 
                          "NSL",
@@ -58,45 +61,18 @@ server <- function(input, output) {
                           "NONE")
     )
     
-  })
+    decision_space <- reactive({
+      
+      df <- expand.grid(
+        datatype   = decisions$datatype,
+        outcome    = decisions$outcome,
+        confounder = decisions$confounder,
+        model      = decisions$model,
+        KEEP.OUT.ATTRS = FALSE
+      )
+    })
   
-  multiverse_df <- reactive({
-    dims <- input$dimensions
-    
-    cols <- c(
-      "Data Type"           = "datatype",
-      "Dependent Variable"  = "outcome",
-      "Confounder"          = "confounder",
-      "Statistical Model"   = "model"
-    )
-    
-    selected_cols <- cols[dims]
-    
-    df <- do.call(
-      expand.grid,
-      c(decision_space()[selected_cols], KEEP.OUT.ATTRS = FALSE)
-    )
-    
-    df$path_id <- seq_len(nrow(df))
-    df
-  })
   
-  n_multiverse_paths <- reactive({
-    dims <- input$dimensions
-    
-    cols <- c(
-      "Data Type"           = "datatype",
-      "Dependent Variable"  = "outcome",
-      "Confounder"          = "confounder",
-      "Statistical Model"   = "model"
-    )
-    
-    prod(vapply(
-      decision_space()[cols[dims]],
-      length,
-      numeric(1)
-    ))
-  })
   
   # output plot of OR distributions per decision
   output$decisionspacePlot <- renderPlot({
