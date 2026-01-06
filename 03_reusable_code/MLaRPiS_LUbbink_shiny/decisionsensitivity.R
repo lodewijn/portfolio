@@ -4,7 +4,7 @@ library(tidyverse)
 library(kSamples)
 
 ui <- fluidPage(
-  titlePanel("Multiverse Analysis Simulation"),
+  titlePanel("Multiverse Analysis: Simulation of Outcome Distributions"),
   
   sidebarLayout(
     sidebarPanel(
