@@ -3,6 +3,7 @@ library(ggplot2)
 library(ggalluvial)
 library(tidyverse)
 library(kSamples)
+library(shinycssloaders)
 
 ui <- fluidPage(
   titlePanel("Multiverse Analysis: Decision Space and Sensitivity"),
@@ -36,7 +37,10 @@ ui <- fluidPage(
         )
         ,
         mainPanel(
+          withSpinner(
           plotOutput("decisionspacePlot"),
+          type = 6
+          ),
           verbatimTextOutput("nPaths")
         )
       )
