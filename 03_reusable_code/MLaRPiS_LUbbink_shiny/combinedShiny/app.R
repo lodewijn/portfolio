@@ -126,6 +126,7 @@ server <- function(input, output) {
     
     # When the box is not ticked, this means that this decision is fixed 
     # so for example just one type of model (e.g., logistic regression) is used
+    # or only one data type (e.g. strictly longitudinal) is used
     if (!"Data Type" %in% input$dimensions) {
       df$datatype <- "FIXED"
     }
@@ -139,6 +140,7 @@ server <- function(input, output) {
       df$model <- "FIXED"
     }
     
+    # count how many rows there are for each combination of decisions
     df |>
       group_by(datatype, outcome, confounder, model) |>
       summarise(n = n(), .groups = "drop")
@@ -176,13 +178,14 @@ server <- function(input, output) {
     # Set seed to ensure reproducibility
     set.seed(123)
     
+    # Total number of possible research paths
     n <- nrow(decision_grid)
     
     # For good visualisation of decision sensitivity
     # 2/3 of the resulting odds ratios will follow a normal distribution 
     n_norm <- floor(2 * n / 3)
     
-    # and 1/3 will follow a beta
+    # and 1/3 of the odds ratios will follow a beta distribution
     n_beta <- n - n_norm
     
     # Conditions for normal distribution
@@ -209,7 +212,8 @@ server <- function(input, output) {
     dat
   })
   
-  # connect variables in df to option bar
+  # Connect variables in df to option bar where you can select 
+  # which decisions are fixed and varied
   grouping_var <- reactive({
     switch(
       input$Decision,
@@ -220,7 +224,7 @@ server <- function(input, output) {
     ) })
   
   ### OUTPUT DECISION SPACE ###
-  # output plot of OR distributions per decision
+  # Output plot of OR distributions per decision
   output$decisionspacePlot <- renderPlot({
     df <- decision_space()
     
@@ -243,19 +247,22 @@ server <- function(input, output) {
       ylab("Number of possible analytical paths") +
       labs(fill = "Data")+
       theme(
-        axis.title = element_text(size = 16),   # x and y axis titles
-        axis.text  = element_text(size = 14),   # tick labels
-        legend.title = element_text(size = 16), # "fill" label
-        legend.text  = element_text(size = 14), # legend item labels
-        strip.text = element_text(size = 16)    # facet labels (if any)
+        axis.title = element_text(size = 16),   # Adjust text sizes
+        axis.text  = element_text(size = 14),   # To increase readability
+        legend.title = element_text(size = 16), 
+        legend.text  = element_text(size = 14), 
+        strip.text = element_text(size = 16)    
       )
     
     decisionplot
   })
   
+  # Calculate the number of possible research paths at different combinations
+  # of analytical decisions
   output$nPaths <- renderText({
     dims <- input$dimensions
     
+    # Calculate the number of options per decision
     sizes <- c(
       "Data Type" = length(decisions$datatype),
       "Dependent Variable" = length(decisions$outcome),
@@ -263,6 +270,8 @@ server <- function(input, output) {
       "Statistical Model" = length(decisions$model)
     )
     
+    # Create text to cleanly communicate the number of universes
+    # that arise from the different decisions
     paste(
       "Number of possible analytical paths (universes):",
       prod(sizes[dims])
