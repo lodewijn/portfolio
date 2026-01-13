@@ -1,0 +1,99 @@
+---
+title: "My Reproducible Manuscript"
+author: "Loesje Ubbink"
+format: pdf
+bibliography: references.bib
+---
+
+This is a manuscript to show that I have learned to:
+
+- Use markup language(s)
+- Use figures
+- Use tables
+- Use equations
+- Reference
+- Make a document with clear presentation and consistency
+
+# Dog Intelligence
+I will demonstrate my reproducible markup skills by using dog intelligence as an example, using data from @beautiful_best_2026.
+
+I can use code that is not shown in the rendered document, by including `echo = FALSE`, like this:
+
+```{r, echo = FALSE, message=FALSE}
+# Load required packages
+library(readxl)
+library(readr)
+library(tidyverse)
+library(dplyr)
+```
+
+Or I can choose to use code that is shown in the rendered document, like this:
+
+```{r, message=F}
+# Load data
+# make sure only relative paths are used to ensure reproducibility!
+DogInt <- read_csv("data/dog_intelligence.csv") 
+BreedInf <- read_csv("data/AKC Breed Info.csv")
+DogCateg <-  read_excel("data/DOG_categories.xlsx")
+
+# Join the datasets based on breed
+DogData <- left_join(DogInt, BreedInf, by = "Breed")
+DogData <- left_join(DogData, DogCateg, by = "Breed")
+
+# Remove double index variable
+DogData <- DogData %>% dplyr::select(-index.y)
+```
+
+## Table
+As a measure of dog intelligence, I will look at the amount of repetitions they need before obeying. The more repetitions are needed, the less intelligent a dog is. Because the dataset contains an enormous amount of dog breeds, with `r length(unique(DogData$Breed))` different breeds, I decided to only look at dog categories, which contains `r length(unique(DogData$Category))` different categories. 
+
+Some descriptive statistics about the repetitions needed per category, can be found in the table below:
+
+```{r, echo = F}
+library(knitr)
+library(kableExtra)
+
+DogSummary <- DogData |>
+  group_by(Category) |>
+  summarise(mean_lower_rep = mean(reps_lower),
+            mean_upper_rep = mean(reps_upper), 
+            mean_total_rep = (mean_lower_rep + mean_upper_rep)/2)
+
+kable(
+  DogSummary,
+  col.names = c("Category", "Mean Lower Reps", "Mean Upper Reps", "Mean Reps"),
+  align = c("l", "c", "c", "c"),
+  caption = "Repetitions of Command Needed Before Obeying Per Dog Category"
+) |>
+  kable_styling(
+    full_width = FALSE,
+    position = "center"
+  ) |>
+  footnote(
+    general = "Reps = repetitions; lower = least amount of repetitions needed before a dog obeys; upper = highest amount of repetitions needed before a dog obeys",
+    general_title = ""
+  )
+```
+
+## Figure
+To show I can make a figure, I will plot dog intelligence as a function of dog category.
+
+```{r}
+# The lowest number of repetitions before a dog understands the command
+ggplot(DogData, aes(x = Category, y = reps_lower, fill = Category)) + 
+  geom_boxplot() +
+  theme_minimal()  + 
+  labs(y = "Least Number of Repetitions Before Obeying")
+
+# The highest number of repetitions before a dog understands the command
+ggplot(DogData, aes(x = Category, y = reps_upper, fill = Category)) + 
+  geom_boxplot() +
+  theme_minimal() + 
+  labs(y = "Most Number of Repetitions Before Obeying")
+```
+It is clear that herding and sporting dogs need the lowest number of repetitions, while hounds need on average the most repetition.
+
+## 
+
+
+# References
