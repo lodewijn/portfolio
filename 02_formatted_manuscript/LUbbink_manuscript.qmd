@@ -25,6 +25,8 @@ library(readxl)
 library(readr)
 library(tidyverse)
 library(dplyr)
+library(knitr)
+library(kableExtra)
 ```
 
 Or I can choose to use code that is shown in the rendered document, like this:
@@ -50,9 +52,6 @@ As a measure of dog intelligence, I will look at the amount of repetitions they 
 Some descriptive statistics about the repetitions needed per category, can be found in the table below:
 
 ```{r, echo = F}
-library(knitr)
-library(kableExtra)
-
 DogSummary <- DogData |>
   group_by(Category) |>
   summarise(mean_lower_rep = mean(reps_lower),
@@ -69,10 +68,11 @@ kable(
     full_width = FALSE,
     position = "center"
   ) |>
-  footnote(
-    general = "Reps = repetitions; lower = least amount of repetitions needed before a dog obeys; upper = highest amount of repetitions needed before a dog obeys",
-    general_title = ""
-  )
+   footnote(
+    general = "\\\\small{Reps = repetitions; lower = least nr. of reps before obeying; upper = highest nr. of reps before obeying}",
+    general_title = "",
+    escape = FALSE)
+
 ```
 
 ## Figure
@@ -83,13 +83,21 @@ To show I can make a figure, I will plot dog intelligence as a function of dog c
 ggplot(DogData, aes(x = Category, y = reps_lower, fill = Category)) + 
   geom_boxplot() +
   theme_minimal()  + 
-  labs(y = "Least Number of Repetitions Before Obeying")
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  ) +
+  labs(x = "Dog Category", y = "Least Number of Repetitions Before Obeying")
 
 # The highest number of repetitions before a dog understands the command
 ggplot(DogData, aes(x = Category, y = reps_upper, fill = Category)) + 
   geom_boxplot() +
   theme_minimal() + 
-  labs(y = "Most Number of Repetitions Before Obeying")
+theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  ) +
+  labs(x = "Dog Category", y = "Least Number of Repetitions Before Obeying")
 ```
 
 It is clear that herding and sporting dogs need the lowest number of repetitions, while hounds need on average the most repetition.
@@ -107,7 +115,7 @@ $I_{category} = \alpha \cdot \frac{1}{1 + Rep_{category}} + (1 − \alpha) \cdot
 These equations can be implemented in a separate R script, and ran in this manuscript, by sourcing the R script:
 
 ```{r}
-#| file: "scripts/mean_reps.R"
+#| file: "scripts/intelligence_eq1.R"
 #| eval: true 
 ```
 
@@ -120,6 +128,8 @@ This shows that herding dogs are indeed most intelligent, based on the number of
 Not only the smartest, they might also be the cutest [@noauthor_dog_2026]:
 
 ![Herding dog puppies](herding_dogs.png)
+
+For a nice overview of the intelligence of different breeds, see [this website](https://informationisbeautiful.net/visualizations/best-in-show-whats-the-top-data-dog/) [@beautiful_best_2026].
 
 
 # References
