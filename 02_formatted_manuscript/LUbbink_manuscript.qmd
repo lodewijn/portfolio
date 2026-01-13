@@ -19,6 +19,10 @@ I will demonstrate my reproducible markup skills by using dog intelligence as an
 
 I can use code that is not shown in the rendered document, by including `echo = FALSE`, like this:
 
+
+    See the qmd file for the code that is hidden in the rendered document
+
+
 ```{r, echo = FALSE, message=FALSE}
 # Load required packages
 library(readxl)
@@ -100,27 +104,38 @@ theme(
   labs(x = "Dog Category", y = "Least Number of Repetitions Before Obeying")
 ```
 
-It is clear that herding and sporting dogs need the lowest number of repetitions, while hounds need on average the most repetition.
+It is clear that herding and sporting dogs need the lowest number of repetitions, while on average hounds need the most repetition.
 
 ## Equations
-Hypothetically, we could say that dog intelligence per category ($I_{category}$) can be calculated as follows:
+Hypothetically, we could say that dog intelligence per category ($I_{category}$) can be calculated as a function of the mean number of repetitions needed before obeying, as shown in Equation 1.
 
-$I_{category} = \frac{1}{1 + Rep_{category}} \text{ where } Rep_{category} \text{ is the mean number of repetitions needed per category},$ [Eq.1]
+$$
+I_{\text{category}} = \frac{1}{1 + Rep_{\text{category}}}
+\tag{1}
+$$
 
-or we could even include learning speed and some constants: 
+In Equation 1, $Rep_{\text{category}}$ is the mean number of repetitions needed per category.
 
-$I_{category} = \alpha \cdot \frac{1}{1 + Rep_{category}} + (1 − \alpha) \cdot Speed_{category}$ [Eq.2]
+If we want a more complex (hypothetical!) model for dog intelligence per category ($I_{category}$), we could even include learning speed ($Speed_{category}$) and some constants ($\alpha$), as shown in Equation 2. 
+
+$$
+I_{\text{category}} =
+\alpha \cdot \frac{1}{1 + Rep_{\text{category}}}
++ (1 - \alpha) \cdot Speed_{\text{category}}
+\tag{2}
+$$
 
 ## Sourcing scripts
-These equations can be implemented in a separate R script, and ran in this manuscript, by sourcing the R script:
+These equations can be implemented in a separate R script, and ran in this manuscript, by sourcing the R script `intelligence_eq1.R`, giving:
 
 ```{r}
 #| file: "scripts/intelligence_eq1.R"
 #| eval: true 
 ```
 
-With this code, we can calculate the intelligence per category (using Eq.1) using the `DogSummary` dataset:
+With this code, we can calculate the intelligence per category (using Eq.1) using the `DogSummary` dataset, `intelligence(DogSummary$mean_total_rep)`, giving:
 `r intelligence(DogSummary$mean_total_rep)`.
+
 
 This shows that herding dogs are indeed most intelligent, based on the number of repetitions they need before obeying a command.
 
@@ -129,7 +144,7 @@ Not only the smartest, they might also be the cutest [@noauthor_dog_2026]:
 
 ![Herding dog puppies](herding_dogs.png)
 
-For a nice overview of the intelligence of different breeds, see [this website](https://informationisbeautiful.net/visualizations/best-in-show-whats-the-top-data-dog/) [@beautiful_best_2026].
+For a very nice overview of more data on different dog breeds, see [this website](https://informationisbeautiful.net/visualizations/best-in-show-whats-the-top-data-dog/) [@beautiful_best_2026].
 
 
 # References
