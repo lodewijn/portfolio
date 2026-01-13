@@ -1,4 +1,4 @@
-# Markup languages and reproducible programming in statistics
+# Markup Languages And Reproducible Programming in Statistics
 
 Deliverable 3: Reusable `R` code wrapped in an `R` package or `Shiny` app.
 
@@ -19,7 +19,7 @@ by setting up the decision space, where all possible analytical paths are mapped
 and then calculating the sensitivity of each decision based on the distributions 
 of the outcomes of each universe.
 
-# Published App and Digital Identifier
+# Published App And Digital Identifier
 You can find the published app here: https://lodewijn.shinyapps.io/combinedShiny/.
 
 And the digital identifier: https://doi.org/10.5281/zenodo.18232364.
