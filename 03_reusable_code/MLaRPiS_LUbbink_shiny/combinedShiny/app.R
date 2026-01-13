@@ -284,6 +284,7 @@ server <- function(input, output) {
     dat <- simulated_data()
     g <- grouping_var()
     
+    # Plot the odds ratio densities for each decision
     ggplot(dat, aes(x = odds_ratio, colour = .data[[g]])) +
       geom_density(size = 1) +
       geom_vline(xintercept = 1, linetype = "dashed") +
@@ -296,7 +297,8 @@ server <- function(input, output) {
       theme(text = element_text(size = 16))
   })
   
-  # output of the k-samples Anderson Darling (AD) test to identify sensitive decisions 
+  # Output of the k-samples Anderson Darling (AD) test 
+  # to identify sensitive decisions 
   ad_result <- reactive({
     dat <- simulated_data()
     g <- grouping_var()
@@ -305,26 +307,31 @@ server <- function(input, output) {
     ad.test(split_or)
   })
   
+  # Create text to cleanly communicate the results of the AD-test
   output$adText1 <- renderText({
     paste(
       "Results of k-sample Anderson Darling Test:")
   })
   
+  # And the conditions of the test (number of options in the decision
+  # and their sample sizes)
   output$adText2 <- renderText({
     ad <- ad_result()
     
     paste("Number of samples:", ad$k,"\nSample sizes:", paste(ad$ns, collapse = ", "))
   })
   
+  # Print the actual results of the AD test to see if they are significant
   output$adTest <- renderPrint({
     ad <- ad_result()
     ad$ad
   })
   
+  # And interpret what this means for the sensitivity of the decision
   output$sensitivityText <- renderText({
     ad_sens <- ad_result()
     
-    if (ad_sens$ad[6] < 0.05) {
+    if (ad_sens$ad[6] < 0.05) { # ad[6] gives the p-value
       "Since the Anderson–Darling test is significant (p < 0.05), this analytical decision can be classified as sensitive."
     } else {
       "Since the Anderson–Darling test is not significant (p > 0.05), this analytical decision cannot be classified as sensitive."
