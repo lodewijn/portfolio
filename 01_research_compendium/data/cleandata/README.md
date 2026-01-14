@@ -9,25 +9,25 @@ not able to share them on github.
 - it can take some time (a few days/weeks) before the registration is complete
 
 **If you are already registered**, to access the data, please follow these steps:
-- visit: [https://releases.sharedataportal.eu/users/login](https://releases.sharedataportal.eu/users/login)
+- visit: [https://releases.sharedataportal.eu/users/login](https://releases.sharedataportal.eu/users/login) and log in
 - here you see the data files for all waves, in this study only waves 2, 4, 5, 6 and 7 are used, so these are the only ones that need to be downloaded
-- note: the SPSS data are used, such as: sharew1_rel9-0-0_ALL_datasets_spss.zip
+- Note: the SPSS data are used, for example: sharew1_rel9-0-0_ALL_datasets_spss.zip
 
 **After getting access to the full data**, select only those files that are needed in this study.
 An example of which data files are relevant and how they should be placed in the folder structure can be found below:
 
-### For wave 1
-01_research_compendium/data/rawdata/wave1/sharew1_rel9-0-0_br.sav
-01_research_compendium/data/rawdata/wave1/sharew1_rel9-0-0_dn.sav
-01_research_compendium/data/rawdata/wave1/sharew1_rel9-0-0_gv_health.sav
-01_research_compendium/data/rawdata/wave1/sharew1_rel9-0-0_ph.sav
+##### For wave 1
+- 01_research_compendium/data/rawdata/wave1/sharew1_rel9-0-0_br.sav
+- 01_research_compendium/data/rawdata/wave1/sharew1_rel9-0-0_dn.sav
+- 01_research_compendium/data/rawdata/wave1/sharew1_rel9-0-0_gv_health.sav
+- 01_research_compendium/data/rawdata/wave1/sharew1_rel9-0-0_ph.sav
 
-### For wave 2 (repeat for 4, 5, 6 and 7)
-01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_br.sav
-01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_dn.sav
-01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_gv_health.sav
-01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_ph.sav
-01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_xt.sav
+##### For wave 2 (repeat for 4, 5, 6 and 7)
+- 01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_br.sav
+- 01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_dn.sav
+- 01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_gv_health.sav
+- 01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_ph.sav
+- 01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_xt.sav
 *Note: waves 2 - 7 contain one dataset more than wave 1, as these contain information about death since last interview*
 
 # Data Structure and Variables
