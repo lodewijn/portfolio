@@ -26,7 +26,7 @@ code chunk creates a list of all different combinations of covariates
 In the third code chunk, a data frame containing all possible combinations of 
 all decisions is created using `expand.grid`
 
-*Note: for more information about the variables see REAME.md in the data folder.*
+- *Note: for more information about the variables see README.md in the data folder.*
 ---
 
 ## Sampling and Approximation
