@@ -29,4 +29,3 @@ all decisions is created using `expand.grid`
 *Note: for more information about the variables see REAME.md in the data folder.*
 ---
 
-- DS: Data Set

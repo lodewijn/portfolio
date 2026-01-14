@@ -30,7 +30,7 @@ waves <- lapply(waves, \(df) {
            dn019_ = as.character(as.numeric(dn019_))) # year widowed
 })
 
-# Unpack back into original objects
+# Put them back into original objects
 w1 <- waves$w1
 w2 <- waves$w2
 w4 <- waves$w4

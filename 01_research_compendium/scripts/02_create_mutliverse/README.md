@@ -29,4 +29,11 @@ all decisions is created using `expand.grid`
 *Note: for more information about the variables see REAME.md in the data folder.*
 ---
 
-- DS: Data Set
+## Sampling and Approximation
+
+Because I have not created scripts for the sampling of the multiverse 
+and approximation of the decision sensitivities, the folders 
+`02_sampling` and `03_approximation` are still empty.
+
+
+
