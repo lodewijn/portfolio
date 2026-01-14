@@ -1,0 +1,53 @@
+---
+title: "Preliminary Results Plots"
+format: html
+---
+
+```{r}
+library(ggplot2)
+
+set.seed(123)
+
+# Simulate data
+n <- 400
+means <- c(0.95, 1.025, 1,  0.975, 1.05)
+sd    <- 0.03
+
+# Create a data frame with simulated odds ratio per operationalisation of the outcome variable
+dat <- data.frame(
+  odds_ratio = unlist(
+    lapply(means, function(mu) {
+      # let 5 of the outcomes follow normal distributions
+      exp(rnorm(n, mean = log(mu), sd = sd)) 
+    })
+  ),
+  operationalisation = rep(
+    paste0("Operationalisation ", 1:5),
+    each = n
+  )
+)
+
+# and the other 2 follow different beta distributions
+or6 <- data.frame(odds_ratio=rbeta(n, 3,2), operationalisation = rep("Operationalisation 6", 400))
+
+or7 <- data.frame(odds_ratio=rbeta(n, 6,2), operationalisation = rep("Operationalisation 7", 400))
+
+# combine all datasets
+dat <- rbind(dat, or6, or7)
+
+# plot the densities of all outcome distributions to show how they differ
+ggplot(dat, aes(x = odds_ratio, colour = operationalisation)) +
+  geom_density(size = 1) +
+  geom_vline(xintercept = 1, linetype = "dashed") + # OR = 1, no effect
+  labs(
+    x = "Odds Ratio",
+    y = "Density",
+    colour = "Dependent variable operationalisation"
+  ) +
+  scale_color_grey() +
+  theme_minimal() + 
+   theme(text = element_text(size = 20)) 
+```
+
+
+

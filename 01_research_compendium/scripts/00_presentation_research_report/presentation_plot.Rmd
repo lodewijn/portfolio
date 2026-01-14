@@ -1,0 +1,52 @@
+---
+title: "Plot oversimplified multiverse"
+output: html_document
+date: "2025-09-28"
+---
+
+# Plot oversimplified multiverse to demonstrate how it works
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggalluvial)
+```
+
+```{r}
+# Generate combinations of a subset of all choices
+df <- expand.grid(
+  data = c("FULL","WOMEN"),
+  outcome = c("HEART"),
+  covar = c("", "AGE", "SMOKE", "EDUCATION"),
+  model   = c("LOGIT", "LOG-BIN")
+)
+
+# Reshape to long form for plotting
+decisions <- df %>% 
+  mutate(spec_id = row_number()) %>%
+  pivot_longer(-spec_id, names_to = "decision", values_to = "choice")
+
+
+# Plot the different research paths
+decisionplot <- ggplot(df,
+       aes(axis1 = data, axis2 = outcome, axis3 = covar, axis4 = model)) +
+  geom_alluvium(aes(fill = data), knot.pos = 0.1, alpha = .55) +
+  geom_stratum() +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("Data", "Outcome", "Covariates", "Model")) +
+  scale_fill_manual(values = c("#cc0000", "#595959")) +
+  theme_minimal() + ylab("Number of possible decisions") +
+  labs(fill = "Data")+
+  theme(
+    axis.title = element_text(size = 16),   # x and y axis titles
+    axis.text  = element_text(size = 14),   # tick labels
+    legend.title = element_text(size = 16), # "fill" label
+    legend.text  = element_text(size = 14), # legend item labels
+    strip.text = element_text(size = 16)    # facet labels (if any)
+  )
+
+decisionplot
+```
+
+

@@ -1,0 +1,34 @@
+---
+title: "Run All Cleaning Scripts"
+format: html
+---
+# Load Required Package
+```{r}
+library(here) # locate working directory
+```
+
+# Load All Scripts For Data Cleaning
+```{r,message=F, warning=F}
+# wave 1
+source(here("scripts/01_data_cleaning/01_select_variables/01_data_cleaning_wave1.R"))
+
+# wave 2
+source(here("scripts/01_data_cleaning/01_select_variables/01_data_cleaning_wave2.R"))
+
+# wave 4
+source(here("scripts/01_data_cleaning/01_select_variables/01_data_cleaning_wave4.R"))
+
+# wave 5
+source(here("scripts/01_data_cleaning/01_select_variables/01_data_cleaning_wave5.R"))
+
+# wave 6
+source(here("scripts/01_data_cleaning/01_select_variables/01_data_cleaning_wave6.R"))
+
+# wave 7
+source(here("scripts/01_data_cleaning/01_select_variables/01_data_cleaning_wave7.R"))
+
+# variables to numeric
+source(here("scripts/01_data_cleaning/02_variables_to_numeric/02_variables_to_numeric.R"))
+```
+
+

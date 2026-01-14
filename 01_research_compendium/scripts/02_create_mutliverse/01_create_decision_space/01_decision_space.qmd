@@ -1,0 +1,80 @@
+---
+title: "Setting up the Decision Space"
+format: html
+---
+
+# Load Required Packages
+```{r, warning=F}
+library(tidyverse)
+```
+
+# Load Cleaned Data From All Waves
+```{r}
+w1 <- read.csv("../../../data/cleandata/w1_clean.csv")
+w2 <- read.csv("../../../data/cleandata/w2_clean.csv")
+w4 <- read.csv("../../../data/cleandata/w4_clean.csv")
+w5 <- read.csv("../../../data/cleandata/w5_clean.csv")
+w6 <- read.csv("../../../data/cleandata/w6_clean.csv")
+w7 <- read.csv("../../../data/cleandata/w7_clean.csv")
+```
+
+# Set Up Decision Space Multiverse
+
+### Missing Data
+- complete cases (cc)
+- imputed data from SHARE (imp)
+- "no information" as category to avoid exclusions (ni)
+
+### Target Population / Data Type
+
+- longitudinal with wave 1 as only baseline (longitudinal w1)
+- longitudinal while also including w2-w6 as baseline (longitudinal no strict baseline)
+- cross-sectional using all waves (cross-sectional)
+
+```{r}
+# First, combine all datasets into a default df
+# And create a column that notes which data came from which wave
+df <- bind_rows(                        
+  w1 |> mutate(wave = "w1"),
+  w2 |> mutate(wave = "w2"),
+  w4 |> mutate(wave = "w4"),
+  w5 |> mutate(wave = "w5"),
+  w6 |> mutate(wave = "w6"),
+  w7 |> mutate(wave = "w7")) |>
+  select(mergeid, wave, everything())  # increase readability
+
+# --- (DS) longitudinal w1
+# select only the people that are (at least) in w1 (baseline)
+df <- df |>
+  filter(mergeid %in% w1$mergeid)   
+
+# --- (DS) longitudinal no strict baseline
+# select the people that are (at least) in w2,w4,w5 or w6 
+# exclude people that only appear in w7 (as this would be cross-sectional and not longitudinal)
+base_w <- unique(c(
+  w1$mergeid,
+  w2$mergeid,
+  w4$mergeid,
+  w5$mergeid,
+  w6$mergeid
+))
+
+df <- df |>
+  filter(mergeid %in% base_w)
+
+# --- (DS) cross-sectional all waves
+# For this, the default df can be used.
+```
+
+### Outcome Variable 
+-   ph006d1: Heart attack: ever diagnosed
+-   ph006d4: Stroke: ever diagnosed
+-   ph009_1: Age heart attack or other heart problems
+-   ph009_4: Age stroke or cerebral vascular disease
+-   ph067_1, ph067_2, ph_972_1, ph_072_2: Heart attack / stroke since
+    last interview
+-   xt011\_: Main cause of death heart attack / stroke
+
+```{r}
+
+```
