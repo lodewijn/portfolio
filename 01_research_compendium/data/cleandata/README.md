@@ -91,4 +91,5 @@ The focus is on the following variables:
 - dn018\_: Since when divorced
 - dn019\_: Since when widowed 
 
+For more information about the variables, visit:
 <https://www.share-datadocutool.org/study-units/view/1>
