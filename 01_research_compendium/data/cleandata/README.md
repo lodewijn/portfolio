@@ -28,7 +28,7 @@ An example of which data files are relevant and how they should be placed in the
 - 01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_gv_health.sav
 - 01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_ph.sav
 - 01_research_compendium/data/rawdata/wave2/sharew2_rel9-0-0_xt.sav
-*Note: waves 2 - 7 contain one dataset more than wave 1, as these contain information about death since last interview*
+- *Note: waves 2 - 7 contain one dataset more than wave 1, as these contain information about death since last interview*
 
 # Data Structure and Variables
 
